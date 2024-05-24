@@ -1,9 +1,8 @@
-import re, string, calendar
+import re
+import string
 from wikipedia import WikipediaPage
 import wikipedia
 from bs4 import BeautifulSoup
-from nltk import word_tokenize, pos_tag, ne_chunk
-from nltk.tree import Tree
 from match import match
 from typing import List, Callable, Tuple, Any, Match
 
@@ -112,6 +111,26 @@ def get_birth_date(name: str) -> str:
     return match.group("birth")
 
 
+def get_city_pop(name: str) -> str:
+    """Gets population of the given city
+
+    Args:
+        name - name of the city
+
+    Returns:
+        population of the city
+    """
+    if not name:
+        raise ValueError("City name must be provided")
+    
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    pattern = r"([0-9]+(,[0-9]+)+)"
+    error_text = "Page infobox has no population information"
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group(1)
+
+
 # below are a set of actions. Each takes a list argument and returns a list of answers
 # according to the action and the argument. It is important that each function returns a
 # list of the answer(s) and not just the answer itself.
@@ -141,6 +160,20 @@ def polar_radius(matches: List[str]) -> List[str]:
     return [get_polar_radius(matches[0])]
 
 
+def city_pop(matches: List[str]) -> List[str]:
+    """Returns population of city in matches
+
+    Args:
+        matches - match from pattern of city to find population of
+
+    Returns:
+        population of city
+    """
+    if not matches or not matches[0]:
+        return ["No city specified"]
+    return [get_city_pop(matches[0])]
+
+
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
     raise KeyboardInterrupt
@@ -156,6 +189,7 @@ Action = Callable[[List[str]], List[Any]]
 pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
+    ("what is the population of %".split(), city_pop),
     (["bye"], bye_action),
 ]
 
@@ -184,7 +218,7 @@ def search_pa_list(src: List[str]) -> List[str]:
 def query_loop() -> None:
     """The simple query loop. The try/except structure is to catch Ctrl-C or Ctrl-D
     characters and exit gracefully"""
-    print("Welcome to the movie database!\n")
+    print("Welcome to the information database!\n")
     while True:
         try:
             print()
