@@ -124,8 +124,27 @@ def get_city_pop(name: str) -> str:
         raise ValueError("City name must be provided")
     
     infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
-    pattern = r"([0-9]+(,[0-9]+)+)"
+    pattern = r"Population\s*.*?(\d{1,3}(?:,\d{3})*)"
     error_text = "Page infobox has no population information"
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group(1)
+
+def get_city_coords(name: str) -> str:
+    """Gets coordinates of the given city
+
+    Args:
+        name - name of the city
+
+    Returns:
+        coordinates of the city
+    """
+    if not name:
+        raise ValueError("City name must be provided")
+    
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    pattern = r"Coordinates: ?(\d+\s\d+\s+\d+\s\w\s\d+\s\d+\s\d+\s+\w)"
+    error_text = "Page infobox has no coordinates information"
     match = get_match(infobox_text, pattern, error_text)
 
     return match.group(1)
@@ -173,6 +192,20 @@ def city_pop(matches: List[str]) -> List[str]:
         return ["No city specified"]
     return [get_city_pop(matches[0])]
 
+def city_coords(matches: List[str]) -> List[str]:
+    """Returns coordinates of city in matches
+
+    Args:
+        matches - match from pattern of city to find population of
+
+    Returns:
+        population of city
+    """
+    if not matches or not matches[0]:
+        return ["No city specified"]
+    return [get_city_coords(matches[0])]
+
+
 
 # dummy argument is ignored and doesn't matter
 def bye_action(dummy: List[str]) -> None:
@@ -190,6 +223,7 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("when was % born".split(), birth_date),
     ("what is the polar radius of %".split(), polar_radius),
     ("what is the population of %".split(), city_pop),
+    ("what are the coordinates of %".split(), city_coords),
     (["bye"], bye_action),
 ]
 
