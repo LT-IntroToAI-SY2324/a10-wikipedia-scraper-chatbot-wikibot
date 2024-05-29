@@ -124,7 +124,8 @@ def get_city_pop(name: str) -> str:
         raise ValueError("City name must be provided")
     
     infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
-    pattern = r"Population\s*.*?(\d{1,3}(?:,\d{3})*)"
+    print(infobox_text)
+    pattern = r"Population [a-zA-Z!@#$%^&*() [\]]+\d{4}[a-zA-Z!@#$%^&*() [\]]+\d{0,2}[a-zA-Z!@#$%^&*() [\]]+?([0-9,]+)"
     error_text = "Page infobox has no population information"
     match = get_match(infobox_text, pattern, error_text)
 
@@ -149,6 +150,25 @@ def get_city_coords(name: str) -> str:
 
     return match.group(1)
 
+def get_city_country(name: str) -> str:
+    """Gets country of the given city
+
+    Args:
+        name - name of the city
+
+    Returns:
+        country of the city
+    """
+    if not name:
+        raise ValueError("City name must be provided")
+    
+    infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
+    print(infobox_text)
+    pattern = r""
+    error_text = "Page infobox has no country information"
+    match = get_match(infobox_text, pattern, error_text)
+
+    return match.group(1)
 
 # below are a set of actions. Each takes a list argument and returns a list of answers
 # according to the action and the argument. It is important that each function returns a
@@ -204,6 +224,18 @@ def city_coords(matches: List[str]) -> List[str]:
     if not matches or not matches[0]:
         return ["No city specified"]
     return [get_city_coords(matches[0])]
+def city_country(matches: List[str]) -> List[str]:
+    """Returns country of city in matches
+
+    Args:
+        matches - match from pattern of city to find country of
+
+    Returns:
+        country of city
+    """
+    if not matches or not matches[0]:
+        return ["No city specified"]
+    return [get_city_country(matches[0])]
 
 
 
@@ -224,6 +256,7 @@ pa_list: List[Tuple[Pattern, Action]] = [
     ("what is the polar radius of %".split(), polar_radius),
     ("what is the population of %".split(), city_pop),
     ("what are the coordinates of %".split(), city_coords),
+    ("what country is % in".split(), city_country),
     (["bye"], bye_action),
 ]
 
