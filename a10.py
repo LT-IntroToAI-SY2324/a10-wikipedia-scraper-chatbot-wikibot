@@ -124,7 +124,6 @@ def get_city_pop(name: str) -> str:
         raise ValueError("City name must be provided")
     
     infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
-    print(infobox_text)
     pattern = r"Population [a-zA-Z!@#$%^&*() [\]]+\d{4}[a-zA-Z!@#$%^&*() [\]]+\d{0,2}[a-zA-Z!@#$%^&*() [\]]+?([0-9,]+)"
     error_text = "Page infobox has no population information"
     match = get_match(infobox_text, pattern, error_text)
@@ -142,7 +141,6 @@ def get_city_coords(name: str) -> str:
     """
     if not name:
         raise ValueError("City name must be provided")
-    
     infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
     pattern = r"Coordinates: ?(\d+\s\d+\s+\d+\s\w\s\d+\s\d+\s\d+\s+\w)"
     error_text = "Page infobox has no coordinates information"
@@ -161,10 +159,8 @@ def get_city_country(name: str) -> str:
     """
     if not name:
         raise ValueError("City name must be provided")
-    
     infobox_text = clean_text(get_first_infobox_text(get_page_html(name)))
-    print(infobox_text)
-    pattern = r""
+    pattern = r"Country\s*([A-Z][a-z]*(?: [A-Z][a-z]*)?)"
     error_text = "Page infobox has no country information"
     match = get_match(infobox_text, pattern, error_text)
 
